@@ -52,45 +52,29 @@ def pixels(image, blocks=15):
 	return image
 
 if args.image is not None:
-	if args.pixels:
-		img = cv2.imread(args.image)
-		h, w = img.shape[:2]
-		kernel_width = (w // 7) | 1
-		kernel_height = (h // 7) | 1
-		blob = cv2.dnn.blobFromImage(img, 1.0, (300, 300), (104.0, 177.0, 123.0))
-		face_detector.setInput(blob)
-		output = np.squeeze(face_detector.forward())
-		print('Processing image...')
-		for i in tqdm(range(0, output.shape[0])):
-			confidence = output[i, 2]
-			if confidence > 0.4:
-				box = output[i, 3:7] * np.array([w, h, w, h])
-				start_x, start_y, end_x, end_y = box.astype(np.int)
-				face = img[start_y: end_y, start_x: end_x]
+	img = cv2.imread(args.image)
+	h, w = img.shape[:2]
+
+	kernel_width = (w // 7) | 1
+	kernel_height = (h // 7) | 1
+
+	blob = cv2.dnn.blobFromImage(img, 1.0, (300, 300), (104.0, 177.0, 123.0))
+	face_detector.setInput(blob)
+	output = np.squeeze(face_detector.forward())
+	print('Processing image...')
+	for i in tqdm(range(0, output.shape[0])):
+		confidence = output[i, 2]
+		if confidence > 0.4:
+			box = output[i, 3:7] * np.array([w, h, w, h])
+			start_x, start_y, end_x, end_y = box.astype(np.int)
+			face = img[start_y: end_y, start_x: end_x]
+			if args.pixels:
 				img[start_y: end_y, start_x: end_x] = pixels(face)
-		cv2.imwrite(os.path.join(os.getcwd(),'output.jpg'), img)
-		print('\nSuccess, Photo located at {}'.format(os.path.join(os.getcwd(),'output.jpg')))
-	else:
-		img = cv2.imread(args.image)
-		h, w = img.shape[:2]
-
-		kernel_width = (w // 7) | 1
-		kernel_height = (h // 7) | 1
-
-		blob = cv2.dnn.blobFromImage(img, 1.0, (300, 300), (104.0, 177.0, 123.0))
-		face_detector.setInput(blob)
-		output = np.squeeze(face_detector.forward())
-		print('Processing image...')
-		for i in tqdm(range(0, output.shape[0])):
-			confidence = output[i, 2]
-			if confidence > 0.4:
-				box = output[i, 3:7] * np.array([w, h, w, h])
-				start_x, start_y, end_x, end_y = box.astype(np.int)
-				face = img[start_y: end_y, start_x: end_x]
+			else:
 				face = cv2.GaussianBlur(face, (kernel_width, kernel_height), 0)
 				img[start_y: end_y, start_x: end_x] = face
-		cv2.imwrite(os.path.join(os.getcwd(),'output.jpg'), img)
-		print('Success, Photo located at {}'.format(os.path.join(os.getcwd(),'output.jpg')))
+	cv2.imwrite(os.path.join(os.getcwd(),'output.jpg'), img)
+	print('Success, Photo located at {}'.format(os.path.join(os.getcwd(),'output.jpg')))
 
 if args.video is not None:
 	cap = cv2.VideoCapture(args.video)
@@ -120,12 +104,6 @@ if args.video is not None:
 				else:
 					face = cv2.GaussianBlur(face, (kernel_width, kernel_height), 0)
 					image[start_y: end_y, start_x: end_x] = face
-		cv2.imshow("image", image)
-		if cv2.waitKey(1) == ord("q"):
-			break
-		time_elapsed = time.time() - start
-		fps = 1 / time_elapsed
-		print("FPS:", fps)
 		out.write(image)
 
 	cv2.destroyAllWindows()

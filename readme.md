@@ -21,9 +21,9 @@ python wheres_waldo.py -p -i <path to image here>
 
 ## Example
 
-Original Image             |  Altered IMage
-:-------------------------:|:-------------------------:
-![Original Image](sample.JPG)  |  ![Filtered Image](output.jpg)
+Original              |  Pixelated     |  Gaussian
+:-------------------------:|:-------------------------:|:-------------------------:
+![Original](sample.JPG)  |  ![Pixelated](output.jpg)  | ![Gauusian](output1.jpg)
 
 ## Roadmap
 

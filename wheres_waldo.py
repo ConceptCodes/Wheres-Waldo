@@ -11,7 +11,7 @@ weights = os.path.join(path,'weights','deploy.prototxt.txt')
 models = os.path.join(path,'weights','res10_300x300_ssd_iter_140000_fp16.caffemodel')
 
 face_detector = cv2.dnn.readNetFromCaffe(weights, models)
-print('Face Detection Model Loaded Successfully!')
+print('Face Detection Model Loaded Successfully!\n')
 
 def str2bool(v):
     if isinstance(v, bool): return v
@@ -27,7 +27,7 @@ parser.add_argument('-p', '--pixels', type=str2bool, nargs='?', const=True, defa
 args = parser.parse_args()
 
 
-def pixels(image, blocks=3):
+def pixels(image, blocks=15):
 	# divide the input image into NxN blocks
 	(h, w) = image.shape[:2]
 	xSteps = np.linspace(0, w, blocks + 1, dtype="int")
@@ -68,8 +68,8 @@ if args.image is not None:
 				start_x, start_y, end_x, end_y = box.astype(np.int)
 				face = img[start_y: end_y, start_x: end_x]
 				img[start_y: end_y, start_x: end_x] = pixels(face)
-				cv2.imwrite(os.path.join(os.getcwd(),'output.jpg'), img)
-				print('Success, Photo located at {}'.format(os.path.join(os.getcwd(),'output.jpg')))
+		cv2.imwrite(os.path.join(os.getcwd(),'output.jpg'), img)
+		print('\nSuccess, Photo located at {}'.format(os.path.join(os.getcwd(),'output.jpg')))
 	else:
 		img = cv2.imread(args.image)
 		h, w = img.shape[:2]
@@ -115,8 +115,11 @@ if args.video is not None:
 				box = output[i, 3:7] * np.array([w, h, w, h])
 				start_x, start_y, end_x, end_y = box.astype(np.int)
 				face = image[start_y: end_y, start_x: end_x]
-				face = cv2.GaussianBlur(face, (kernel_width, kernel_height), 0)
-				image[start_y: end_y, start_x: end_x] = face
+				if args.pixels:
+					image[start_y: end_y, start_x: end_x] = pixels(face)
+				else:
+					face = cv2.GaussianBlur(face, (kernel_width, kernel_height), 0)
+					image[start_y: end_y, start_x: end_x] = face
 		cv2.imshow("image", image)
 		if cv2.waitKey(1) == ord("q"):
 			break

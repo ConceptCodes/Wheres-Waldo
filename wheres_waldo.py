@@ -27,12 +27,10 @@ parser.add_argument('-p', '--pixels', type=str2bool, nargs='?', const=True, defa
 args = parser.parse_args()
 
 
-def pixels(image, blocks=15):
-	# divide the input image into NxN blocks
+def pixels(image):
 	(h, w) = image.shape[:2]
-	xSteps = np.linspace(0, w, blocks + 1, dtype="int")
-	ySteps = np.linspace(0, h, blocks + 1, dtype="int")
-	# loop over the blocks in both the x and y direction
+	xSteps = np.linspace(0, w, 21, dtype="int")
+	ySteps = np.linspace(0, h, 21, dtype="int")
 	for i in range(1, len(ySteps)):
 		for j in range(1, len(xSteps)):
 			# compute the starting and ending (x, y)-coordinates
